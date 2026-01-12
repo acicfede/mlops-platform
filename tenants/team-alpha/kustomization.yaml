@@ -1,10 +1,18 @@
 resources:
   - namespace.yaml
+
+  # --- piattaforma ---
   - ../../catalog/serving/granite/v1
   - ../../catalog/redis/v1
+  - ../../catalog/object-storage/minio/v1
+
+  # --- RBAC ---
   - ../../catalog/rbac/admin/v1
+
+  # --- segreti tenant ---
+  - secrets/minio-secret.yaml
 
 patches:
   - path: patches/granite-patch.yaml
+  - path: patches/minio-patch.yaml
   - path: patches/rbac-patch.yaml
-
