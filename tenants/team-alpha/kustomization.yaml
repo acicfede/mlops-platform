@@ -10,6 +10,7 @@ resources:
 
   # --- RBAC ---
   - ../../catalog/rbac/admin/v1
+  - ../../catalog/rbac/admin-redisns/v1 
 
   # --- segreti ---
   - secrets/minio-secret.yaml
