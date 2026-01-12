@@ -1,21 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: ml   # 👈 QUESTO È IL FIX CHIAVE
+namespace: ml   # 👈 OK QUI
 
 resources:
   - namespace.yaml
 
-  # piattaforma
+  # workload applicativi
   - ../../catalog/serving/granite/v1
   - ../../catalog/object-storage/minio/v1
 
-  # operatori
-  - ../../catalog/operators/redis-enterprise/v1
-
-  # RBAC
+  # RBAC applicativo
   - ../../catalog/rbac/admin/v1
-  - ../../catalog/rbac/admin-redisns/v1
 
   # segreti
   - secrets/minio-secret.yaml
@@ -23,4 +19,3 @@ resources:
 patches:
   - path: patches/granite-patch.yaml
   - path: patches/minio-patch.yaml
-  - path: patches/rbac-redisns-patch.yaml
