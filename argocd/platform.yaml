@@ -5,18 +5,10 @@ metadata:
   namespace: openshift-gitops
 spec:
   project: mlops-platform
-
   source:
     repoURL: https://github.com/acicfede/mlops-platform.git
     targetRevision: main
-    path: argocd/app-of-apps/tenants
-
+    path: tenants/team-alpha
   destination:
     server: https://kubernetes.default.svc
-    namespace: openshift-gitops
-
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
 

@@ -1,23 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: team-alpha
+  name: mlops-app-of-apps
   namespace: openshift-gitops
 spec:
-  project: default
-
+  project: mlops-platform
   source:
     repoURL: https://github.com/acicfede/mlops-platform.git
     targetRevision: main
-    path: tenants/team-alpha
-
+    path: argocd
   destination:
     server: https://kubernetes.default.svc
-    namespace: ml
-
+    namespace: openshift-gitops
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+
