@@ -1,0 +1,8 @@
+resources:
+  - namespace.yaml
+  - ../../catalog/mlflow
+  - ../../catalog/redis/v1
+  - ../../catalog/monitoring
+  - ../../catalog/pipelines
+  - ../../catalog/trustyai
+
