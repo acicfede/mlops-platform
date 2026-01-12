@@ -2,5 +2,5 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
-  - routes.yaml
+  - route.yaml
   - job-buckets.yaml
