@@ -4,7 +4,7 @@ metadata:
   name: mlops-platform
   namespace: openshift-gitops
 spec:
-  project: default
+  project: mlops-platform
 
   source:
     repoURL: https://github.com/acicfede/mlops-platform.git
@@ -19,3 +19,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
