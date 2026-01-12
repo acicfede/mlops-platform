@@ -6,10 +6,13 @@ resources:
   - ../../catalog/redis/v1
   - ../../catalog/object-storage/minio/v1
 
+  # --- operatori ---
+  - ../../catalog/operators/redis-enterprise/v1
+
   # --- RBAC ---
   - ../../catalog/rbac/admin/v1
 
-  # --- segreti tenant ---
+  # --- segreti ---
   - secrets/minio-secret.yaml
 
 patches:
