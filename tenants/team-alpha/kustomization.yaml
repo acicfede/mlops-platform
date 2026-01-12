@@ -1,7 +1,10 @@
 resources:
   - namespace.yaml
   - ../../catalog/serving/granite/v1
+  - ../../catalog/redis/v1
+  - ../../catalog/rbac/admin/v1
 
 patches:
   - path: patches/granite-patch.yaml
+  - path: patches/rbac-patch.yaml
 
