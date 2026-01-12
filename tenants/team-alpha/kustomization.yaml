@@ -18,3 +18,4 @@ patches:
   - path: patches/granite-patch.yaml
   - path: patches/minio-patch.yaml
   - path: patches/rbac-patch.yaml
+  - path: patches/rbac-redisns-patch.yaml
