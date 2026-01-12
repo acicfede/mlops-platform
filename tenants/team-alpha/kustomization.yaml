@@ -2,6 +2,6 @@ resources:
   - namespace.yaml
   - ../../catalog/serving/granite/v1
 
-patchesStrategicMerge:
-  - patches/granite-patch.yaml
+patches:
+  - path: patches/granite-patch.yaml
 
