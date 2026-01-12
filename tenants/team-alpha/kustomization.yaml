@@ -1,21 +1,26 @@
 resources:
   - namespace.yaml
 
-  # --- piattaforma ---
+  # piattaforma
   - ../../catalog/serving/granite/v1
   - ../../catalog/object-storage/minio/v1
 
-  # --- operatori ---
+  # operatori
   - ../../catalog/operators/redis-enterprise/v1
 
-  # --- RBAC ---
+  # RBAC
   - ../../catalog/rbac/admin/v1
   - ../../catalog/rbac/admin-redisns/v1
 
-  # --- segreti ---
+  # segreti
   - secrets/minio-secret.yaml
 
 patches:
+  - target:
+      kind: RoleBinding
+      name: mlops-admin-redisns
+      namespace: redisns
+    path: patches/rbac-redisns-patch.yaml
+
   - path: patches/granite-patch.yaml
   - path: patches/minio-patch.yaml
-  - path: patches/rbac-redisns-patch.yaml
