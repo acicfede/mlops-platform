@@ -1,7 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: mlops-user-a
+# namespace (sempre per primi)
+- namespaces/mlops.yaml
+- namespaces/redis.yaml
 
 resources:
   - namespace.yaml
