@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mlops-user-a
+
+resources:
+  - ../../../modules/minio/v1
+  - ../../../modules/workbench/v1
+  - ../../../modules/pipelines/v1
+  - ../../../modules/inference/granite-3-1-2b/v1
