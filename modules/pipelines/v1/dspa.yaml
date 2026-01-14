@@ -29,7 +29,7 @@ spec:
     externalStorage:
       bucket: mlpipeline-artifacts
       host: minio-service
-      port: 9000
+      port: "9000"
       region: us-east-1
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
