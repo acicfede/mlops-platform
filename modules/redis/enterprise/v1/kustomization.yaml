@@ -6,3 +6,5 @@ commonAnnotations:
 
 resources:
   - redis-cluster.yaml
+  - redis-database.yaml
+  - rbac.yaml
