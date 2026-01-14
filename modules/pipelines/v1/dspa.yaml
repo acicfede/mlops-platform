@@ -28,7 +28,8 @@ spec:
     enableExternalRoute: false
     externalStorage:
       bucket: mlpipeline-artifacts
-      host: minio-api-mlops-user-a.apps.privateailab.acic.accenture
+      host: minio-service
+      port: 9000
       region: us-east-1
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
