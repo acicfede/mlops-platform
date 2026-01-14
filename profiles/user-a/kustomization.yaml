@@ -10,4 +10,4 @@ resources:
   - ../../modules/workbench/v1
   - ../../modules/pipelines/v1
   - ../../modules/inference/granite-3-1-2b/v1
-    - ../../modules/serving/granite-3-1-2b/v1
+  - ../../modules/serving-runtime/granite/v1
