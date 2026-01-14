@@ -4,7 +4,7 @@ metadata:
   name: redis-enterprise-operator
   namespace: redis-mlops-user-a
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   channel: 7.8.6
   name: redis-enterprise-operator-cert
