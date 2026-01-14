@@ -1,0 +1,17 @@
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+metadata:
+  name: my-doc
+spec:
+  databaseSecretName: redb-my-doc
+
+  memorySize: 1GB
+
+  modulesList:
+    - name: search
+      version: 2.10.18
+
+  persistence: snapshotEvery12Hour
+  replication: true
+  tlsMode: disabled
+  type: redis
