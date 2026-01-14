@@ -1,0 +1,50 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: nuovo-workbench
+  labels:
+    app: nuovo-workbench
+  annotations:
+    notebooks.opendatahub.io/inject-oauth: "true"
+    opendatahub.io/image-display-name: "Jupyter | PyTorch LLM Compressor | CUDA | Python 3.12"
+    notebooks.opendatahub.io/last-image-selection: "jupyter-pytorch-llmcompressor:2025.2"
+    openshift.io/display-name: nuovo-workbench
+spec:
+  template:
+    spec:
+      serviceAccountName: ml-workbench
+      enableServiceLinks: false
+      containers:
+        - name: nuovo-workbench
+          image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/jupyter-pytorch-llmcompressor:2025.2
+          imagePullPolicy: Always
+          workingDir: /opt/app-root/src
+          env:
+            - name: NOTEBOOK_ARGS
+              value: |
+                --ServerApp.port=8888
+                --ServerApp.token=''
+                --ServerApp.password=''
+                --ServerApp.quit_button=False
+          ports:
+            - containerPort: 8888
+              name: notebook-port
+          resources:
+            requests:
+              cpu: "1"
+              memory: 16Gi
+            limits:
+              cpu: "2"
+              memory: 24Gi
+          volumeMounts:
+            - mountPath: /opt/app-root/src
+              name: workbench-storage
+            - mountPath: /dev/shm
+              name: shm
+      volumes:
+        - name: workbench-storage
+          persistentVolumeClaim:
+            claimName: nuovo-workbench-pvc
+        - name: shm
+          emptyDir:
+            medium: Memory
