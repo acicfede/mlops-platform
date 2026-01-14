@@ -5,6 +5,8 @@ commonAnnotations:
   argocd.argoproj.io/sync-wave: "3"
 
 resources:
+  - redis-database-secret.yaml
   - redis-cluster.yaml
   - redis-database.yaml
-  - redis-database-secret.yaml
+  - redis-service.yaml
+  - redis-index-job.yaml
