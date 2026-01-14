@@ -6,3 +6,4 @@ resources:
   - namespaces/redis.yaml
   - mlops
   - redis
+  - redis-operator
