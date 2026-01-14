@@ -1,8 +1,0 @@
-kind: RoleBinding
-metadata:
-  name: mlops-admin
-subjects: []
-roleRef:
-  kind: ClusterRole
-  name: admin
-
