@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlops-user-a
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/acicfede/mlops-platform.git
+    targetRevision: main
+    path: profiles/user-a
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mlops-user-a
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
