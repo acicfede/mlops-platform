@@ -28,7 +28,7 @@ spec:
     enableExternalRoute: false
     externalStorage:
       bucket: mlpipeline-artifacts
-      host: minio-service
+      host: host: minio-service.mlops-user-a.svc
       port: "9000"
       region: us-east-1
       s3CredentialsSecret:
