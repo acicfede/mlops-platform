@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-lb2
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  selector:
+    #redis.io/bdb-1: '1'
+    statefulset.kubernetes.io/pod-name: "rec-2"
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 16271
+      targetPort: 16271
+  type: LoadBalancer
