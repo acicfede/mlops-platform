@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-minio-buckets
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-buckets
+          image: quay.io/minio/mc:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MINIO_ENDPOINT
+              value: http://minio-service:9000
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: minio_root_user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: minio_root_password
+            - name: MC_CONFIG_DIR
+              value: /tmp/.mc
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              echo "[INFO] Attesa disponibilità MinIO..."
+              until mc alias set myminio "$MINIO_ENDPOINT" "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null 2>&1; do
+                echo "[INFO] MinIO non ancora pronto, retry..."
+                sleep 3
+              done
+
+              mc mb myminio/ml-workbench || true
+              mc mb myminio/mlpipeline-artifacts || true
+              mc mb myminio/guidellm-results || true
+
+              mc ls myminio
+              echo "[INFO] JOB COMPLETATO CON SUCCESSO"
