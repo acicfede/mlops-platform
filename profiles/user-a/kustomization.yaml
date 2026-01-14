@@ -1,16 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# namespace (sempre per primi)
-- namespaces/mlops.yaml
-- namespaces/redis.yaml
-
 resources:
-  - namespace.yaml
-  - ../../platform
-  - ../../modules/minio/v1
-  - ../../modules/workbench/v1
-  - ../../modules/pipelines/v1
-  - ../../modules/inference/granite-3-1-2b/v1
-  - ../../modules/serving-runtime/granite/v1
-  - ../../modules/redis/enterprise/v1
+  - namespaces/mlops.yaml
+  - namespaces/redis.yaml
+  - mlops
+  - redis
