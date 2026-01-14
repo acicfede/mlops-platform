@@ -4,6 +4,7 @@ metadata:
   name: mlops-platform-core
   namespace: openshift-gitops
 spec:
+  project: default          # 👈 OBBLIGATORIO
   source:
     repoURL: https://github.com/acicfede/mlops-platform.git
     targetRevision: main
