@@ -9,4 +9,4 @@ spec:
     requests:
       storage: 20Gi
   volumeMode: Filesystem
-  storageClassName: nfs-csi
+  storageClassName: lvms-vg1-immediate
