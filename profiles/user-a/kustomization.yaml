@@ -6,3 +6,4 @@ namespace: mlops-user-a
 resources:
   - namespace.yaml
   - ../../platform
+  - ../../modules/demo-tool
