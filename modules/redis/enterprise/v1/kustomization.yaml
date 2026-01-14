@@ -7,3 +7,4 @@ commonAnnotations:
 resources:
   - redis-cluster.yaml
   - redis-database.yaml
+  - redis-database-secret.yaml
