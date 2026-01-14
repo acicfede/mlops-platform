@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - namespaces/mlops.yaml
-  - namespaces/redis.yaml
   - mlops
   - redis
   - redis-operator
