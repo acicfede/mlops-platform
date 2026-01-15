@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-redis-index
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: redis-index
+          image: redis:7.2
+          env:
+            - name: REDIS_HOST
+              value: my-doc
+            - name: REDIS_PORT
+              value: "14289"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redb-my-doc
+                  key: password
+          volumeMounts:
+            - name: schema
+              mountPath: /schema
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "Waiting for Redis..."
+              until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" ping | grep -q PONG; do
+                sleep 3
+              done
+
+              echo "Creating index..."
+              redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" \
+                FT.CREATE idx:docs ON HASH PREFIX 1 doc: SCHEMA \
+                page NUMERIC \
+                source TEXT WEIGHT 1 \
+                content TEXT WEIGHT 1 \
+                content_vector VECTOR FLAT 6 TYPE FLOAT32 DIM 768 DISTANCE_METRIC COSINE
+
+      volumes:
+        - name: schema
+          configMap:
+            name: redis-index-schema
