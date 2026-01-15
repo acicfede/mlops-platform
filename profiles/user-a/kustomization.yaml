@@ -6,6 +6,7 @@ resources:
   - mlops
   - redis
   - redis-operator
+  - monitoring-tools
 
 
   
