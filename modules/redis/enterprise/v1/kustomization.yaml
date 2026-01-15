@@ -8,5 +8,4 @@ resources:
   - redis-database-secret.yaml
   - redis-cluster.yaml
   - redis-database.yaml
-  - redis-service.yaml
   - redis-index-job.yaml
