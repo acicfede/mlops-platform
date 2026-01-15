@@ -5,3 +5,4 @@ namespace: redis-mlops-user-a
 
 resources:
   - ../../../modules/redis/enterprise/v1
+  - ../../../modules/redis/index/v1
