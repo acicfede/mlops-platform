@@ -13,7 +13,7 @@ spec:
           image: redis:7.2
           env:
             - name: REDIS_HOST
-              value: my-doc
+              value: my-doc.redis-mlops-user-a.svc.cluster.local
             - name: REDIS_PORT
               value: "13764"
             - name: REDIS_PASSWORD
@@ -30,12 +30,12 @@ spec:
               set -e
 
               echo "Waiting for Redis..."
-              until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" ping | grep -q PONG; do
+              until redis-cli -h "$REDIS_HOST"  -a "$REDIS_PASSWORD" ping | grep -q PONG; do
                 sleep 3
               done
 
               echo "Creating index..."
-              redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" \
+              redis-cli -h "$REDIS_HOST"  -a "$REDIS_PASSWORD" \
                 FT.CREATE idx:docs ON HASH PREFIX 1 doc: SCHEMA \
                 page NUMERIC \
                 source TEXT WEIGHT 1 \
