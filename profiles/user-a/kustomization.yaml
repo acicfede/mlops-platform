@@ -7,5 +7,6 @@ resources:
   - redis
   - redis-operator
   - ../../modules/mlflow/v1
+  - ../../modules/mlflow/v1/postgres
   - secrets/mlflow-backend-secret.yaml
   
