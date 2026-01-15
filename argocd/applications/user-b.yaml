@@ -11,7 +11,7 @@ spec:
     path: profiles/user-b
   destination:
     server: https://kubernetes.default.svc
-    namespace: mlops-user-b
+    namespace: openshift-gitops   # ✅ SEMPRE questo
   syncPolicy:
     automated:
       prune: true
