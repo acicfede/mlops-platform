@@ -5,7 +5,7 @@ resources:
   - namespaces/mlops-user-b.yaml
 
   # base MLOps
-  - ../../modules/minio/v1
+  - ../../../modules/minio/v1
   - ../../modules/workbench/v1
   - ../../modules/pipelines/v1
 
