@@ -15,7 +15,7 @@ spec:
             - name: REDIS_HOST
               value: my-doc
             - name: REDIS_PORT
-              value: "14289"
+              value: "13764"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
