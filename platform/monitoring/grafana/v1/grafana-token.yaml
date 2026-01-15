@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-sa-token
+type: Opaque
+stringData:
+  token: |
+    $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
