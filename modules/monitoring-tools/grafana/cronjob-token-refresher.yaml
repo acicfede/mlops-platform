@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-token-refresher
+  namespace: monitoring-tools
+  labels:
+    app.kubernetes.io/instance: monitoring-tools
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: grafana-token-refresher
+          restartPolicy: OnFailure
+          containers:
+            - name: refresh-token
+              image: quay.io/openshift/origin-cli:latest
+              imagePullPolicy: Always
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "[INFO] Generating new token for grafana-sa..."
+                  TOKEN=$(oc create token grafana-sa -n monitoring-tools)
+
+                  if [ -z "$TOKEN" ]; then
+                    echo "[ERROR] Token generation failed"
+                    exit 1
+                  fi
+
+                  echo "[INFO] Updating prometheus-token secret..."
+                  oc patch secret prometheus-token -n monitoring-tools \
+                    --type=merge -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
+
+                  echo "[INFO] Restarting Grafana pods..."
+                  oc delete pod -n monitoring-tools -l app=grafana --ignore-not-found=true
+
+                  echo "[INFO] Done!"
+
+

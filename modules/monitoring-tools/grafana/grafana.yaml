@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-sa
+  namespace: monitoring-tools
+---
+# ---------------------------------------------------------
+# Job – Grafana Prometheus Token Bootstrap (ArgoCD PreSync)
+# ---------------------------------------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grafana-token-refresher-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      serviceAccountName: grafana-token-refresher
+      restartPolicy: OnFailure
+      containers:
+        - name: refresh-token
+          image: quay.io/openshift/origin-cli:latest
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+
+              echo "[INFO] Generating new token for grafana-token-refresher..."
+              TOKEN=$(oc create token grafana-sa -n monitoring-tools)
+
+              if [ -z "$TOKEN" ]; then
+                echo "[ERROR] Token generation failed"
+                exit 1
+              fi
+
+              echo "[INFO] Updating prometheus-token secret..."
+              oc patch secret prometheus-token \
+                --type=merge \
+                -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
+
+              echo "[INFO] Restarting Grafana pods..."
+              oc delete pod -l app=grafana --ignore-not-found=true
+
+              echo "[INFO] Done!"
+---
+# ---------------------------------------------------------
+# PVC Grafana
+# ---------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: mcp-pf-fs-storageclass
+---
+# ---------------------------------------------------------
+# Deployment Grafana
+# ---------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      serviceAccountName: grafana-sa
+      containers:
+        - name: grafana
+          image: docker.io/grafana/grafana:9.5.2
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+            - name: PROM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: prometheus-token
+                  key: PROM_TOKEN
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+
+            - name: grafana-ds-prometheus
+              mountPath: /etc/grafana/provisioning/datasources/prometheus.yaml
+              subPath: prometheus.yaml
+
+            - name: grafana-ds-mlflow
+              mountPath: /etc/grafana/provisioning/datasources/mlflow.yaml
+              subPath: mlflow.yaml
+
+            - name: grafana-dashboard-providers
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+              subPath: dashboards.yaml
+
+            - name: grafana-dashboard-mlflow
+              mountPath: /etc/grafana/provisioning/dashboards/mlflow/mlflow-training-dashboard.json
+              subPath: mlflow-training-dashboard.json
+
+            - name: grafana-dashboard-vllm
+              mountPath: /etc/grafana/provisioning/dashboards/vllm/vllm-dashboard.json
+              subPath: vllm-dashboard.json
+
+            - name: grafana-dashboard-otel-ml
+              mountPath: /etc/grafana/provisioning/dashboards/otel-ml/otel-ml-training-dashboard.json
+              subPath: otel-ml-training-dashboard.json
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-data
+
+        - name: grafana-ds-prometheus
+          configMap:
+            name: grafana-ds-prometheus
+
+        - name: grafana-ds-mlflow
+          configMap:
+            name: grafana-ds-mlflow
+
+        - name: grafana-dashboard-providers
+          configMap:
+            name: grafana-dashboard-providers
+
+        - name: grafana-dashboard-mlflow
+          configMap:
+            name: grafana-dashboard-mlflow
+
+        - name: grafana-dashboard-vllm
+          configMap:
+            name: grafana-dashboard-vllm
+
+        - name: grafana-dashboard-otel-ml
+          configMap:
+            name: grafana-dashboard-otel-ml
+---
+# ---------------------------------------------------------
+# Service Grafana
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+# ---------------------------------------------------------
+# Route Grafana (OpenShift)
+# ---------------------------------------------------------
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: grafana
+spec:
+  to:
+    kind: Service
+    name: grafana
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+

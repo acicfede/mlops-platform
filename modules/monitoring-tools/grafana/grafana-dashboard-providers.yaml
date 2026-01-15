@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-providers
+  namespace: monitoring-tools
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: mlflow
+        folder: MLflow
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards/mlflow
+
+      - name: vllm
+        folder: vLLM
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards/vllm
+
+      - name: otel-ml
+        folder: OpenTelemetry ML Metrics
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards/otel-ml

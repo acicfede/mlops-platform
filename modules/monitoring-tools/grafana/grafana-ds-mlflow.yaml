@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-ds-mlflow
+  namespace: monitoring-tools
+data:
+  mlflow.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: MLflow-PostgreSQL
+        type: postgres
+        access: proxy
+        url: postgresql.monitoring-tools.svc.cluster.local:5432
+        user: admin
+        database: db
+        secureJsonData:
+          password: admin
+        jsonData:
+          sslmode: disable
+        isDefault: false
