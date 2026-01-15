@@ -16,17 +16,22 @@ spec:
               value: my-doc.redis-mlops-user-a.svc.cluster.local
             - name: REDIS_PORT
               value: "14289"       # 👈 PORTA GIUSTA
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redb-my-doc
+                  key: password
           args:
             - |
               set -e
 
-              echo "Waiting for Redis at $REDIS_HOST:$REDIS_PORT ..."
-              until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" ping | grep -q PONG; do
+              echo "Waiting for Redis..."
+              until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" ping | grep -q PONG; do
                 sleep 3
               done
 
               echo "Creating vector index..."
-              redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" <<'EOF'
+              redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" <<'EOF'
               FT.CREATE idx:docs ON HASH PREFIX 1 doc: SCHEMA \
                 page NUMERIC \
                 source TEXT \
