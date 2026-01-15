@@ -9,22 +9,24 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: redis-index
-          image: redis/redis-stack-server:7.2.0-v9
+          image: redis:7.2        # 👈 solo redis-cli
           command: ["/bin/sh", "-c"]
           env:
             - name: REDIS_HOST
               value: my-doc
             - name: REDIS_PORT
-              value: "16271"
+              value: "14289"       # 👈 PORTA GIUSTA
           args:
             - |
-              echo "Waiting for Redis..."
-              until redis-cli -h $REDIS_HOST -p $REDIS_PORT ping; do
+              set -e
+
+              echo "Waiting for Redis at $REDIS_HOST:$REDIS_PORT ..."
+              until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" ping | grep -q PONG; do
                 sleep 3
               done
 
               echo "Creating vector index..."
-              redis-cli -h $REDIS_HOST -p $REDIS_PORT <<EOF
+              redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" <<'EOF'
               FT.CREATE idx:docs ON HASH PREFIX 1 doc: SCHEMA \
                 page NUMERIC \
                 source TEXT \
@@ -35,4 +37,5 @@ spec:
                   DISTANCE_METRIC COSINE
               EOF
 
-              echo "Index created"
+              echo "Index created successfully"
+
