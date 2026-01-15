@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-index-schema
+data:
+  schema.yaml: |
+    numeric:
+      - name: page
+        no_index: false
+        sortable: false
+    text:
+      - name: source
+        no_index: false
+        no_stem: false
+        sortable: false
+        weight: 1
+        withsuffixtrie: false
+      - name: content
+        no_index: false
+        no_stem: false
+        sortable: false
+        weight: 1
+        withsuffixtrie: false
+    vector:
+      - name: content_vector
+        algorithm: FLAT
+        datatype: FLOAT32
+        dims: 768
+        distance_metric: COSINE
