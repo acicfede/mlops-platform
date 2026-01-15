@@ -6,13 +6,12 @@ data:
   prometheus.yaml: |
     apiVersion: 1
     datasources:
-      - name: Thanos-Monitoring
+      - name: Thanos
         type: prometheus
         access: proxy
         url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
         isDefault: true
         jsonData:
           tlsSkipVerify: true
-          httpMethod: GET
         secureJsonData:
           httpHeaderValue1: $__file{/var/run/secrets/kubernetes.io/serviceaccount/token}
