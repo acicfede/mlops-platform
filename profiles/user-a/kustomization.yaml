@@ -6,3 +6,6 @@ resources:
   - mlops
   - redis
   - redis-operator
+  - ../../modules/mlflow/v1
+  - secrets/mlflow-backend-secret.yaml
+  
