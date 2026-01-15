@@ -13,7 +13,7 @@ spec:
           command: ["/bin/sh", "-c"]
           env:
             - name: REDIS_HOST
-              value: my-doc
+              value: my-doc.redis-mlops-user-a.svc.cluster.local
             - name: REDIS_PORT
               value: "14289"       # 👈 PORTA GIUSTA
           args:
