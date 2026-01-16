@@ -3,6 +3,9 @@ kind: Kustomization
 
 resources:
   - namespaces/mlops.yaml
+  - rbac/user-access.yaml
+
+  # moduli   
   - mlops
   - redis
   - redis-operator
