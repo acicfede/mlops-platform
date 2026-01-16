@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - namespaces/mlops.yaml
-  - rbac/user-access.yaml
+  - rbac
 
   # moduli   
   - mlops
