@@ -3,6 +3,8 @@ kind: Kustomization
 
 resources:
   - namespaces/mlops-user-b.yaml
+  - rbac/user-access.yaml
+  - rbac/redis-access.yaml
   - mlops/
 
 
