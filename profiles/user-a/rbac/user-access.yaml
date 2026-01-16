@@ -5,7 +5,7 @@ metadata:
   namespace: mlops-user-a
 subjects:
   - kind: User
-    name: mlops-user-a
+    name: mlops-user
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
