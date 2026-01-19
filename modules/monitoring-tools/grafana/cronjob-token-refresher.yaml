@@ -2,9 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: grafana-token-refresher
-  namespace: monitoring-tools
-  labels:
-    app.kubernetes.io/instance: monitoring-tools
+
 spec:
   schedule: "*/30 * * * *"
   concurrencyPolicy: Forbid
@@ -25,7 +23,7 @@ spec:
                 - -c
                 - |
                   echo "[INFO] Generating new token for grafana-sa..."
-                  TOKEN=$(oc create token grafana-sa -n monitoring-tools)
+                  TOKEN=$(oc create token grafana-sa )
 
                   if [ -z "$TOKEN" ]; then
                     echo "[ERROR] Token generation failed"
