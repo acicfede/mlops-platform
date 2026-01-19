@@ -1,12 +1,22 @@
+# =========================================================
+# ServiceAccount Grafana
+# =========================================================
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: grafana-sa
-  namespace: monitoring-tools
 ---
-# ---------------------------------------------------------
+# =========================================================
+# ServiceAccount Token Refresher
+# =========================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-token-refresher
+---
+# =========================================================
 # Job – Grafana Prometheus Token Bootstrap (ArgoCD PreSync)
-# ---------------------------------------------------------
+# =========================================================
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -24,14 +34,24 @@ spec:
         - name: refresh-token
           image: quay.io/openshift/origin-cli:latest
           imagePullPolicy: Always
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           command:
             - /bin/sh
             - -c
             - |
               set -euo pipefail
 
-              echo "[INFO] Generating new token for grafana-token-refresher..."
-              TOKEN=$(oc create token grafana-sa -n monitoring-tools)
+              if [ -z "$POD_NAMESPACE" ]; then
+                echo "[ERROR] POD_NAMESPACE not set"
+                exit 1
+              fi
+
+              echo "[INFO] Generating new token for grafana-sa in $POD_NAMESPACE..."
+              TOKEN=$(oc create token grafana-sa -n "$POD_NAMESPACE")
 
               if [ -z "$TOKEN" ]; then
                 echo "[ERROR] Token generation failed"
@@ -40,17 +60,81 @@ spec:
 
               echo "[INFO] Updating prometheus-token secret..."
               oc patch secret prometheus-token \
+                -n "$POD_NAMESPACE" \
                 --type=merge \
                 -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
 
               echo "[INFO] Restarting Grafana pods..."
-              oc delete pod -l app=grafana --ignore-not-found=true
+              oc delete pod \
+                -n "$POD_NAMESPACE" \
+                -l app=grafana \
+                --ignore-not-found=true
 
               echo "[INFO] Done!"
 ---
-# ---------------------------------------------------------
-# PVC Grafana
-# ---------------------------------------------------------
+# =========================================================
+# CronJob – Grafana Token Refresher
+# =========================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-token-refresher
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: grafana-token-refresher
+          restartPolicy: OnFailure
+          containers:
+            - name: refresh-token
+              image: quay.io/openshift/origin-cli:latest
+              imagePullPolicy: Always
+              env:
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -euo pipefail
+
+                  if [ -z "$POD_NAMESPACE" ]; then
+                    echo "[ERROR] POD_NAMESPACE not set"
+                    exit 1
+                  fi
+
+                  echo "[INFO] Generating new token for grafana-sa..."
+                  TOKEN=$(oc create token grafana-sa -n "$POD_NAMESPACE")
+
+                  if [ -z "$TOKEN" ]; then
+                    echo "[ERROR] Token generation failed"
+                    exit 1
+                  fi
+
+                  echo "[INFO] Updating prometheus-token secret..."
+                  oc patch secret prometheus-token \
+                    -n "$POD_NAMESPACE" \
+                    --type=merge \
+                    -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
+
+                  echo "[INFO] Restarting Grafana pods..."
+                  oc delete pod \
+                    -n "$POD_NAMESPACE" \
+                    -l app=grafana \
+                    --ignore-not-found=true
+
+                  echo "[INFO] Done!"
+---
+# =========================================================
+# PersistentVolumeClaim Grafana
+# =========================================================
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -63,9 +147,9 @@ spec:
       storage: 5Gi
   storageClassName: mcp-pf-fs-storageclass
 ---
-# ---------------------------------------------------------
+# =========================================================
 # Deployment Grafana
-# ---------------------------------------------------------
+# =========================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -152,9 +236,9 @@ spec:
           configMap:
             name: grafana-dashboard-otel-ml
 ---
-# ---------------------------------------------------------
+# =========================================================
 # Service Grafana
-# ---------------------------------------------------------
+# =========================================================
 apiVersion: v1
 kind: Service
 metadata:
@@ -167,9 +251,9 @@ spec:
       port: 3000
       targetPort: 3000
 ---
-# ---------------------------------------------------------
+# =========================================================
 # Route Grafana (OpenShift)
-# ---------------------------------------------------------
+# =========================================================
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -182,4 +266,3 @@ spec:
     targetPort: http
   tls:
     termination: edge
-
