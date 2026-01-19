@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: grafana-token-refresher
-
 spec:
   schedule: "*/30 * * * *"
   concurrencyPolicy: Forbid
@@ -18,25 +17,34 @@ spec:
             - name: refresh-token
               image: quay.io/openshift/origin-cli:latest
               imagePullPolicy: Always
+              env:
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
               command:
                 - /bin/sh
                 - -c
                 - |
                   echo "[INFO] Generating new token for grafana-sa..."
-                  TOKEN=$(oc create token grafana-sa )
+                  TOKEN=$(oc create token grafana-sa)
 
                   if [ -z "$TOKEN" ]; then
                     echo "[ERROR] Token generation failed"
                     exit 1
                   fi
 
-                  echo "[INFO] Updating prometheus-token secret..."
-                  oc patch secret prometheus-token -n monitoring-tools \
-                    --type=merge -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
+                  echo "[INFO] Updating prometheus-token secret in $POD_NAMESPACE..."
+                  oc patch secret prometheus-token \
+                    -n "$POD_NAMESPACE" \
+                    --type=merge \
+                    -p "{\"stringData\":{\"PROM_TOKEN\":\"$TOKEN\"}}"
 
-                  echo "[INFO] Restarting Grafana pods..."
-                  oc delete pod -n monitoring-tools -l app=grafana --ignore-not-found=true
+                  echo "[INFO] Restarting Grafana pods in $POD_NAMESPACE..."
+                  oc delete pod \
+                    -n "$POD_NAMESPACE" \
+                    -l app=grafana \
+                    --ignore-not-found=true
 
                   echo "[INFO] Done!"
-
 
